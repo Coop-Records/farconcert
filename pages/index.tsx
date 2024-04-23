@@ -97,7 +97,9 @@ function Profile() {
       );
       openModal(
         <>
-          <QRCode value={`${window.location.host}/admin/${data.uuid}`} />
+          <QRCode
+            value={`${window.location.protocol}//${window.location.host}/admin/${data.uuid}`}
+          />
         </>,
         `FarConcert Ticket #${ticket}`
       );
