@@ -9,16 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@farcaster/auth-kit": "^0.2.1",
+    "@supabase/supabase-js": "^2.42.0",
+    "lodash": "^4.17.21",
+    "next": "14.1.4",
     "react": "^18",
     "react-dom": "^18",
-    "next": "14.1.4"
+    "viem": "^2.9.15"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@types/lodash": "^4.17.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
-    "eslint-config-next": "14.1.4"
+    "eslint-config-next": "14.1.4",
+    "typescript": "^5"
   }
 }

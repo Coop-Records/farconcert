@@ -7,6 +7,24 @@
   min-height: 100vh;
 }
 
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px; /* Adjust the space between grid items */
+}
+
+.ticketItem {
+  text-align: center;
+  cursor: pointer;
+}
+
+.ticketImage {
+  width: 200px;
+  height: 250px;
+  object-fit: cover; /* Ensures the images are nicely fit into the container */
+}
+
+
 .description {
   display: inherit;
   justify-content: inherit;
