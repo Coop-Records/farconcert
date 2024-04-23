@@ -83,7 +83,7 @@ export default function Admin() {
   }, []);
 
   const fetchApiWithUuid = async (uuid: string, access_token: string) => {
-    const response = await fetch(`/api/redeem`, {
+    const response = await fetch(`/api/redeem/${uuid}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -144,22 +144,21 @@ export const getServerSideProps: GetServerSideProps<RedeemProps> = async ({
   }
   const session = await supabase.auth.getSession();
 
-  const accessToken = session.data.session?.access_token;
-
-  console.log(session);
-
-  const response = await (
-    await fetch("http://localhost:3000/api/redeem", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        /* your request body if needed */
-      }),
-    })
-  ).json();
+  if (!isNil(session.data.session)) {
+    const accessToken = session.data.session?.access_token;
+    const response = await (
+      await fetch("http://localhost:3000/api/redeem", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          /* your request body if needed */
+        }),
+      })
+    ).json();
+  }
 
   const { uuid } = params;
 

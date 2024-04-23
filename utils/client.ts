@@ -1,4 +1,9 @@
-import { createPublicClient, http } from "viem";
+import {
+  createPublicClient,
+  createWalletClient,
+  http,
+  publicActions,
+} from "viem";
 import { base } from "viem/chains";
 import { privateKeyToAccount } from "viem/accounts";
 
@@ -6,7 +11,7 @@ const BASEAlchemyKey = process.env.NEXT_PUBLIC_BASE_ALCHEMY_KEY as string;
 const serverBaseAlchemyKey = process.env.BASE_ALCHEMY_KEY as string;
 const deployerPrivateKey = process.env.DEPLOYER_ACCOUNT_PRIVATE_KEY;
 
-// export const DeployerAccount = privateKeyToAccount(`0x${deployerPrivateKey}`);
+export const DeployerAccount = privateKeyToAccount(`0x${deployerPrivateKey}`);
 
 export const baseClient = createPublicClient({
   chain: base,
@@ -15,5 +20,15 @@ export const baseClient = createPublicClient({
 
 export const baseServerClient = createPublicClient({
   chain: base,
-  transport: http(`https://base-mainnet.g.alchemy.com/v2/${serverBaseAlchemyKey}`),
+  transport: http(
+    `https://base-mainnet.g.alchemy.com/v2/${serverBaseAlchemyKey}`
+  ),
 });
+
+export const baseWriteServerClient = createWalletClient({
+  chain: base,
+  transport: http(
+    `https://base-mainnet.g.alchemy.com/v2/${serverBaseAlchemyKey}`
+  ),
+  account: DeployerAccount,
+}).extend(publicActions);

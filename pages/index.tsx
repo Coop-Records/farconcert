@@ -9,13 +9,12 @@ import {
 import FarConcert from "@/abi/FarConcert.json";
 import { baseClient } from "@/utils/client";
 import { useEffect, useState } from "react";
-import { isEmpty, isNil } from "lodash";
+import { isNil } from "lodash";
 import { useModal } from "@/hooks/useModal";
 import QRCode from "qrcode.react";
-import { Hex } from "viem";
+import { farconContractAddress } from "@/utils/constants";
 
 const inter = Inter({ subsets: ["latin"] });
-const farconContractAddress = "0xB791556273B26389BcB4865DB028898f125E4319";
 
 export default function Home() {
   return (
