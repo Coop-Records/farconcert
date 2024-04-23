@@ -95,7 +95,7 @@ function Profile() {
         </div>
       ) : (
         <p>
-          Click the "Sign in with Farcaster" button above, then scan the QR code
+          Click the &quot;Sign in with Farcaster&quot; button above, then scan the QR code
           to sign in.
         </p>
       )}
