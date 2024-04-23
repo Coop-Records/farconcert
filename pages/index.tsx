@@ -1,11 +1,18 @@
 import Head from "next/head";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
-import { SignInButton, useProfile } from "@farcaster/auth-kit";
+import {
+  SignInButton,
+  useProfile,
+  useSignInMessage,
+} from "@farcaster/auth-kit";
 import FarConcert from "@/abi/FarConcert.json";
 import { baseClient } from "@/utils/client";
 import { useEffect, useState } from "react";
 import { isEmpty, isNil } from "lodash";
+import { useModal } from "@/hooks/useModal";
+import QRCode from "qrcode.react";
+import { Hex } from "viem";
 
 const inter = Inter({ subsets: ["latin"] });
 const farconContractAddress = "0xB791556273B26389BcB4865DB028898f125E4319";
@@ -35,21 +42,23 @@ function Profile() {
     isAuthenticated,
     profile: { fid, displayName, custody, verifications },
   } = profile;
+
+  const { message, signature } = useSignInMessage();
   const [tickets, setTickets] = useState<number[]>([]);
 
   useEffect(() => {
     if (isAuthenticated && custody) {
       // TODO: CHange this to "verifications"
-      getTickets(["0x9266F125fb2EcB730D9953b46dE9C32e2Fa83E4a"]);
+      getTickets(["0xb618a21F95AA6c9C4281dB442857F50D2c5D44f7"]);
     }
   }, [custody, isAuthenticated]);
 
+  const { openModal } = useModal();
+
   const getTickets = async (addresses: `0x${string}`[] | undefined) => {
     const ids = [];
-    console.log(addresses, farconContractAddress);
     if (isNil(addresses)) return;
     for (const address of addresses) {
-      console.log(address, farconContractAddress, baseClient);
       const owned = (await baseClient.readContract({
         address: farconContractAddress,
         abi: FarConcert,
@@ -68,11 +77,32 @@ function Profile() {
         }
       }
     }
-    console.log(ids);
     setTickets(ids);
   };
 
-  const showModal = (ticket: number) => {};
+  const showModal = async (ticket: number) => {
+    if (!isNil(custody) && !isNil(message) && !isNil(signature)) {
+      const res = await fetch(`/api/present/${ticket}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ custody, message, signature }),
+      });
+      const data = await res.json();
+      // TODO: Change to https
+
+      console.log(
+        `${window.location.protocol}//${window.location.host}/admin/${data.uuid}`
+      );
+      openModal(
+        <>
+          <QRCode value={`${window.location.host}/admin/${data.uuid}`} />
+        </>,
+        `FarConcert Ticket #${ticket}`
+      );
+    }
+  };
 
   return (
     <>
@@ -95,8 +125,8 @@ function Profile() {
         </div>
       ) : (
         <p>
-          Click the &quot;Sign in with Farcaster&quot; button above, then scan the QR code
-          to sign in.
+          Click the &quot;Sign in with Farcaster&quot; button above, then scan
+          the QR code to sign in.
         </p>
       )}
     </>

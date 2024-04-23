@@ -2,17 +2,22 @@ import "@/styles/globals.css";
 import "@farcaster/auth-kit/styles.css";
 import { AuthKitProvider } from "@farcaster/auth-kit";
 import type { AppProps } from "next/app";
+import { ModalProvider } from "@/hooks/useModal";
+import Modal from "@/components/Modal/modals/Modal";
 
 const config = {
   rpcUrl: "https://mainnet.optimism.io",
-  domain: "example.com",
-  siweUri: "https://example.com/login",
+  domain: "farconcert.cooprecords.xyz",
+  siweUri: "https://farconcert.cooprecords.xyz/login",
 };
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <AuthKitProvider config={config}>
-      <Component {...pageProps} />
+      <ModalProvider>
+        <Component {...pageProps} />
+        <Modal />
+      </ModalProvider>
     </AuthKitProvider>
   );
 }
