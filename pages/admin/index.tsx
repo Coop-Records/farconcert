@@ -29,7 +29,7 @@ export default function Admin() {
     if (!isNil(error)) {
       setMessage(`Error signing in: ${error}`);
     } else {
-      setMessage("");
+      setMessage(" ");
     }
   };
 
