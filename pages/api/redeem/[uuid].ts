@@ -42,19 +42,39 @@ export default async function handler(
     .eq("id", uuid)
     .single();
 
-  const { request, result } = await baseWriteServerClient.simulateContract({
+  const redeemed = (await baseWriteServerClient.readContract({
     address: serverFarconContractAddress,
     abi: FarConcert,
-    functionName: "redeem",
+    functionName: "redeemed",
     args: [ticketData?.nft_id],
-    account: DeployerAccount,
-  });
+  })) as boolean;
 
-  const hash = await baseWriteServerClient.writeContract(request);
+  if (redeemed) {
+    res.status(200).json({
+      status: "Already Redeemed - do not admit entry",
+      ticket_id: ticketData?.nft_id,
+    });
+  } else {
+    try {
+      const { request, result } = await baseWriteServerClient.simulateContract({
+        address: serverFarconContractAddress,
+        abi: FarConcert,
+        functionName: "redeem",
+        args: [ticketData?.nft_id],
+        account: DeployerAccount,
+      });
 
-  const { data: ticketWrite, error: ticketErrorWrite } = await supabase
-    .from("tickets")
-    .upsert([{ nft_id: ticketData?.nft_id, redeemed: true }]);
+      const hash = await baseWriteServerClient.writeContract(request);
 
-  res.status(200).json({ status: "Redeemed", ticket_id: ticketData?.nft_id });
+      const { data: ticketWrite, error: ticketErrorWrite } = await supabase
+        .from("tickets")
+        .upsert([{ nft_id: ticketData?.nft_id, redeemed: true }]);
+
+      res
+        .status(200)
+        .json({ status: "Redeemed", ticket_id: ticketData?.nft_id });
+    } catch (e) {
+      res.status(200).json({ status: "Failed for some reason" });
+    }
+  }
 }
