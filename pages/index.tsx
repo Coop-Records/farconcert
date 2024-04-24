@@ -76,7 +76,7 @@ function Profile() {
   useEffect(() => {
     if (isAuthenticated && custody) {
       // TODO: CHange this to "verifications"
-      getTickets(["0xb618a21F95AA6c9C4281dB442857F50D2c5D44f7"]);
+      getTickets(verifications);
     }
   }, [custody, isAuthenticated]);
 
