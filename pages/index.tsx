@@ -20,23 +20,23 @@ import TicketModal from "@/components/Modal/modals/TicketModal";
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-  const [error, setError] = useState(false);
+  // const [error, setError] = useState(false);
 
-  const getNonce = useCallback(async () => {
-    const nonce = await getCsrfToken();
-    if (!nonce) throw new Error("Unable to generate nonce");
-    return nonce;
-  }, []);
+  // const getNonce = useCallback(async () => {
+  //   const nonce = await getCsrfToken();
+  //   if (!nonce) throw new Error("Unable to generate nonce");
+  //   return nonce;
+  // }, []);
 
-  const handleSuccess = useCallback((res: StatusAPIResponse) => {
-    signIn("credentials", {
-      message: res.message,
-      signature: res.signature,
-      name: res.username,
-      pfp: res.pfpUrl,
-      redirect: false,
-    });
-  }, []);
+  // const handleSuccess = useCallback((res: StatusAPIResponse) => {
+  //   signIn("credentials", {
+  //     message: res.message,
+  //     signature: res.signature,
+  //     name: res.username,
+  //     pfp: res.pfpUrl,
+  //     redirect: false,
+  //   });
+  // }, []);
 
   return (
     <>
@@ -48,12 +48,7 @@ export default function Home() {
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
         <div>
-          <SignInButton
-            nonce={getNonce}
-            onSuccess={handleSuccess}
-            onError={() => setError(true)}
-            onSignOut={() => signOut()}
-          />
+          <SignInButton />
         </div>
         <Profile />
       </main>
