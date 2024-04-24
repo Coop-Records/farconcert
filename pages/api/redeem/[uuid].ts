@@ -50,8 +50,7 @@ export default async function handler(
     account: DeployerAccount,
   });
 
-  // TODO: UNCOMMENT THIS
-  // const hash = await client.writeContract(request);
+  const hash = await baseWriteServerClient.writeContract(request);
 
   const { data: ticketWrite, error: ticketErrorWrite } = await supabase
     .from("tickets")

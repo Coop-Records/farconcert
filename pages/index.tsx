@@ -69,7 +69,6 @@ function Profile() {
 
   useEffect(() => {
     if (isAuthenticated && custody) {
-      // TODO: CHange this to "verifications"
       getTickets(verifications);
     }
   }, [custody, isAuthenticated]);
