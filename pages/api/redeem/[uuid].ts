@@ -3,9 +3,10 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
 import FarConcert from "@/abi/FarConcert.json";
 import { DeployerAccount, baseWriteServerClient } from "@/utils/client";
-import { farconContractAddress } from "@/utils/constants";
+import { serverFarconContractAddress } from "@/utils/constants";
 
 type Data = {
+  ticket_id?: number;
   status?: string;
   error?: string;
 };
@@ -42,14 +43,12 @@ export default async function handler(
     .single();
 
   const { request, result } = await baseWriteServerClient.simulateContract({
-    address: farconContractAddress,
+    address: serverFarconContractAddress,
     abi: FarConcert,
     functionName: "redeem",
     args: [ticketData?.nft_id],
     account: DeployerAccount,
   });
-
-  console.log("result", request);
 
   // TODO: UNCOMMENT THIS
   // const hash = await client.writeContract(request);
@@ -58,5 +57,5 @@ export default async function handler(
     .from("tickets")
     .upsert([{ nft_id: ticketData?.nft_id, redeemed: true }]);
 
-  res.status(200).json({ status: "Redeemed" });
+  res.status(200).json({ status: "Redeemed", ticket_id: ticketData?.nft_id });
 }

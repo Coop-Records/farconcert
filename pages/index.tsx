@@ -29,7 +29,6 @@ export default function Home() {
   }, []);
 
   const handleSuccess = useCallback((res: StatusAPIResponse) => {
-    console.log(res);
     signIn("credentials", {
       message: res.message,
       signature: res.signature,
@@ -129,11 +128,6 @@ function Profile() {
         body: JSON.stringify({ custody, message, signature }),
       });
       const data = await res.json();
-      // TODO: Change to https
-
-      console.log(
-        `${window.location.protocol}//${window.location.host}/admin/${data.uuid}`
-      );
       openModal(
         <TicketModal
           url={`${window.location.protocol}//${window.location.host}/admin/${data.uuid}`}

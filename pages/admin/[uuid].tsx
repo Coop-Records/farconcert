@@ -6,6 +6,9 @@ import { useRouter } from "next/router";
 
 interface RedeemProps {
   uuid: string;
+  redeemed: boolean;
+  alreadyRedeemed: boolean;
+  invalidRedeem: boolean;
 }
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
@@ -19,6 +22,7 @@ export default function Admin() {
   const [message, setMessage] = useState("");
   const router = useRouter(); // Use the useRouter hook to access the route parameters
   const { uuid } = router.query; // Destructure the uuid from the query
+  const [status, setStatus] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +37,7 @@ export default function Admin() {
       setMessage(`Error signing in: ${error}`);
     } else {
       setMessage("");
+      await checkSession();
     }
   };
 
@@ -47,25 +52,29 @@ export default function Admin() {
     }
   };
 
-  useEffect(() => {
-    const checkSession = async () => {
-      const session = await supabase.auth.getSession();
-      const access_token = session.data.session?.access_token;
+  const checkSession = async () => {
+    const session = await supabase.auth.getSession();
+    const access_token = session.data.session?.access_token;
 
-      if (session) {
-        setUser(session.data.session);
-        if (uuid && access_token) {
-          // Make sure uuid is not undefined
-          try {
-            // Ensure UUID is a string if using TypeScript, you might need to do a type assertion or check
-            await fetchApiWithUuid(uuid.toString(), access_token);
-          } catch (error) {
-            console.error("Error fetching API:", error);
-          }
+    if (session) {
+      setUser(session.data.session);
+      if (uuid && access_token) {
+        // Make sure uuid is not undefined
+        try {
+          // Ensure UUID is a string if using TypeScript, you might need to do a type assertion or check
+          const response = await fetchApiWithUuid(
+            uuid.toString(),
+            access_token
+          );
+          setStatus(`${response.status} Ticket #${response.ticket_id}`);
+        } catch (error) {
+          console.error("Error fetching API:", error);
         }
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     checkSession();
   }, [uuid]); // Add uuid as a dependency to re-run this effect if uuid changes
 
@@ -96,7 +105,7 @@ export default function Admin() {
     });
 
     const data = await response.json();
-    console.log(data);
+    return data;
   };
 
   const handleSession = async () => {
@@ -129,44 +138,53 @@ export default function Admin() {
       ) : (
         <button onClick={() => handleSignout()}>Sign Out</button>
       )}
+      <div>{status}</div>
       <div>{message}</div>
     </>
   );
 }
 
-export const getServerSideProps: GetServerSideProps<RedeemProps> = async ({
-  params,
-}) => {
-  if (!params || typeof params.uuid !== "string") {
-    return {
-      notFound: true,
-    };
-  }
-  const session = await supabase.auth.getSession();
+// export const getServerSideProps: GetServerSideProps<RedeemProps> = async ({
+//   params,
+// }) => {
+//   if (!params || typeof params.uuid !== "string") {
+//     return {
+//       notFound: true,
+//     };
+//   }
+//   const session = await supabase.auth.getSession();
 
-  if (!isNil(session.data.session)) {
-    const accessToken = session.data.session?.access_token;
-    const response = await (
-      await fetch("http://localhost:3000/api/redeem", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          /* your request body if needed */
-        }),
-      })
-    ).json();
-  }
+//   var redeemed = false;
+//   var alreadyRedeemed = false;
+//   var invalidRedeem = false;
+//   console.log("TEST", session);
 
-  const { uuid } = params;
+//   if (!isNil(session.data.session)) {
+//     const accessToken = session.data.session?.access_token;
+//     const response = await (
+//       await fetch("http://localhost:3000/api/redeem", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//           Authorization: `Bearer ${accessToken}`,
+//         },
+//         body: JSON.stringify({
+//           /* your request body if needed */
+//         }),
+//       })
+//     ).json();
+//   }
 
-  // TODO: Implemenet call to back end for redeeming
+//   const { uuid } = params;
 
-  return {
-    props: {
-      uuid,
-    },
-  };
-};
+//   // TODO: Implemenet call to back end for redeeming
+
+//   return {
+//     props: {
+//       uuid,
+//       redeemed,
+//       alreadyRedeemed,
+//       invalidRedeem,
+//     },
+//   };
+// };
