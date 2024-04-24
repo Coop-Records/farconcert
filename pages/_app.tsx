@@ -8,8 +8,8 @@ import Modal from "@/components/Modal/modals/Modal";
 
 const config = {
   rpcUrl: "https://mainnet.optimism.io",
-  domain: "farconcert.vercel.app",
-  siweUri: "https://farconcert.vercel.app/login",
+  domain: "example.com",
+  siweUri: "https://example.com/login",
 };
 
 export default function App({
