@@ -1,5 +1,4 @@
 import "@/styles/globals.css";
-import { SessionProvider } from "next-auth/react";
 import "@farcaster/auth-kit/styles.css";
 import { AuthKitProvider } from "@farcaster/auth-kit";
 import type { AppProps } from "next/app";
@@ -17,13 +16,11 @@ export default function App({
   pageProps: { session, ...pageProps },
 }: AppProps) {
   return (
-    <SessionProvider session={session}>
-      <AuthKitProvider config={config}>
-        <ModalProvider>
-          <Component {...pageProps} />
-          <Modal />
-        </ModalProvider>
-      </AuthKitProvider>
-    </SessionProvider>
+    <AuthKitProvider config={config}>
+      <ModalProvider>
+        <Component {...pageProps} />
+        <Modal />
+      </ModalProvider>
+    </AuthKitProvider>
   );
 }
