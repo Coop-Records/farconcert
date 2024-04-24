@@ -70,7 +70,9 @@ function Profile() {
   } = profile;
 
   const { message, signature } = useSignInMessage();
-  const [tickets, setTickets] = useState<number[]>([]);
+  const [tickets, setTickets] = useState<{ id: number; redeemed: boolean }[]>(
+    []
+  );
 
   useEffect(() => {
     if (isAuthenticated && custody) {
@@ -86,7 +88,7 @@ function Profile() {
   ); // null when no ticket is loading, or the id of the loading ticket
 
   const getTickets = async (addresses: `0x${string}`[] | undefined) => {
-    const ids = [];
+    const ticketsData = [];
     if (isNil(addresses)) return;
     for (const address of addresses) {
       const owned = (await baseClient.readContract({
@@ -103,11 +105,17 @@ function Profile() {
             functionName: "tokenOfOwnerByIndex",
             args: [address, i],
           })) as number;
-          ids.push(id);
+          const redeemed = (await baseClient.readContract({
+            address: farconContractAddress,
+            abi: FarConcert,
+            functionName: "redeemed",
+            args: [id],
+          })) as boolean;
+          ticketsData.push({ id, redeemed });
         }
       }
     }
-    setTickets(ids);
+    setTickets(ticketsData);
   };
 
   const showModal = async (ticket: number) => {
@@ -140,24 +148,29 @@ function Profile() {
     <>
       {isAuthenticated ? (
         <div className={styles.grid}>
-          {tickets.map((ticket) => (
+          {tickets.map(({ id, redeemed }) => (
             <div
-              key={ticket}
+              key={id}
               className={styles.ticketItem}
-              onClick={() => !loadingTicket && showModal(ticket)}
+              onClick={() => !redeemed && !loadingTicket && showModal(id)}
               style={{ position: "relative" }}
             >
-              {loadingTicket === ticket && (
+              {loadingTicket === id && (
                 <div className={styles.loadingOverlay}>
                   <div className={styles.spinner}></div>
                 </div>
               )}
+              {redeemed && (
+                <div className={styles.redeemedOverlay}>Redeemed</div>
+              )}
               <img
                 src="https://arweave.net/KAUNvzcyvGlSdLWMQ8z2OyI2RdcInYpKtA853S73IzA"
-                alt={`FarConcert #${ticket}`}
+                alt={`FarConcert #${id}`}
                 className={styles.ticketImage}
               />
-              <div>Click ticket for QR Code</div>
+              <div>
+                {redeemed ? "Ticket Redeemed" : "Click ticket for QR Code"}
+              </div>
             </div>
           ))}
         </div>
