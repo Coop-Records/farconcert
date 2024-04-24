@@ -7,7 +7,6 @@ import {
   useProfile,
   useSignInMessage,
 } from "@farcaster/auth-kit";
-import { useSession, signIn, signOut, getCsrfToken } from "next-auth/react";
 import FarConcert from "@/abi/FarConcert.json";
 import { baseClient } from "@/utils/client";
 import { useCallback, useEffect, useState } from "react";
