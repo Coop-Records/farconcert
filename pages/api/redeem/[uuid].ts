@@ -15,8 +15,8 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   const { uuid } = req.query;
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+  const supabaseUrl = process.env.SUPABASE_URL as string;
+  const supabaseKey = process.env.SUPABASE_KEY as string;
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   const token = req.headers.authorization?.split(" ")[1]; // Extract the token from the "Authorization" header
@@ -48,6 +48,8 @@ export default async function handler(
     args: [ticketData?.nft_id],
     account: DeployerAccount,
   });
+
+  console.log("result", request);
 
   // TODO: UNCOMMENT THIS
   // const hash = await client.writeContract(request);
