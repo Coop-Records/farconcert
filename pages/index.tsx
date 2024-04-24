@@ -3,20 +3,42 @@ import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import {
   SignInButton,
+  StatusAPIResponse,
   useProfile,
   useSignInMessage,
 } from "@farcaster/auth-kit";
+import { useSession, signIn, signOut, getCsrfToken } from "next-auth/react";
 import FarConcert from "@/abi/FarConcert.json";
 import { baseClient } from "@/utils/client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { isNil } from "lodash";
 import { useModal } from "@/hooks/useModal";
 import QRCode from "qrcode.react";
 import { farconContractAddress } from "@/utils/constants";
+import TicketModal from "@/components/Modal/modals/TicketModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
+  const [error, setError] = useState(false);
+
+  const getNonce = useCallback(async () => {
+    const nonce = await getCsrfToken();
+    if (!nonce) throw new Error("Unable to generate nonce");
+    return nonce;
+  }, []);
+
+  const handleSuccess = useCallback((res: StatusAPIResponse) => {
+    console.log(res);
+    signIn("credentials", {
+      message: res.message,
+      signature: res.signature,
+      name: res.username,
+      pfp: res.pfpUrl,
+      redirect: false,
+    });
+  }, []);
+
   return (
     <>
       <Head>
@@ -27,7 +49,12 @@ export default function Home() {
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
         <div>
-          <SignInButton />
+          <SignInButton
+            nonce={getNonce}
+            onSuccess={handleSuccess}
+            onError={() => setError(true)}
+            onSignOut={() => signOut()}
+          />
         </div>
         <Profile />
       </main>
@@ -53,6 +80,10 @@ function Profile() {
   }, [custody, isAuthenticated]);
 
   const { openModal } = useModal();
+
+  const [loadingTicket, setLoadingTicket] = useState<number | undefined>(
+    undefined
+  ); // null when no ticket is loading, or the id of the loading ticket
 
   const getTickets = async (addresses: `0x${string}`[] | undefined) => {
     const ids = [];
@@ -80,6 +111,7 @@ function Profile() {
   };
 
   const showModal = async (ticket: number) => {
+    setLoadingTicket(ticket);
     if (!isNil(custody) && !isNil(message) && !isNil(signature)) {
       const res = await fetch(`/api/present/${ticket}`, {
         method: "POST",
@@ -95,14 +127,13 @@ function Profile() {
         `${window.location.protocol}//${window.location.host}/admin/${data.uuid}`
       );
       openModal(
-        <>
-          <QRCode
-            value={`${window.location.protocol}//${window.location.host}/admin/${data.uuid}`}
-          />
-        </>,
+        <TicketModal
+          url={`${window.location.protocol}//${window.location.host}/admin/${data.uuid}`}
+        />,
         `FarConcert Ticket #${ticket}`
       );
     }
+    setLoadingTicket(undefined);
   };
 
   return (
@@ -113,8 +144,14 @@ function Profile() {
             <div
               key={ticket}
               className={styles.ticketItem}
-              onClick={() => showModal(ticket)}
+              onClick={() => !loadingTicket && showModal(ticket)}
+              style={{ position: "relative" }}
             >
+              {loadingTicket === ticket && (
+                <div className={styles.loadingOverlay}>
+                  <div className={styles.spinner}></div>
+                </div>
+              )}
               <img
                 src="https://arweave.net/KAUNvzcyvGlSdLWMQ8z2OyI2RdcInYpKtA853S73IzA"
                 alt={`FarConcert #${ticket}`}

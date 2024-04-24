@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import { SessionProvider } from "next-auth/react";
 import "@farcaster/auth-kit/styles.css";
 import { AuthKitProvider } from "@farcaster/auth-kit";
 import type { AppProps } from "next/app";
@@ -11,13 +12,18 @@ const config = {
   siweUri: "https://farconcert.cooprecords.xyz/login",
 };
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({
+  Component,
+  pageProps: { session, ...pageProps },
+}: AppProps) {
   return (
-    <AuthKitProvider config={config}>
-      <ModalProvider>
-        <Component {...pageProps} />
-        <Modal />
-      </ModalProvider>
-    </AuthKitProvider>
+    <SessionProvider session={session}>
+      <AuthKitProvider config={config}>
+        <ModalProvider>
+          <Component {...pageProps} />
+          <Modal />
+        </ModalProvider>
+      </AuthKitProvider>
+    </SessionProvider>
   );
 }

@@ -12,9 +12,9 @@ const Modal: React.FC = () => {
         <div className={styles.dialog}>
           <div className={styles.header}>
             <div className={`${styles.title}`}>{title}</div>
-            <Button onClick={closeModal} className={styles.closeButton}>
+            <button onClick={closeModal} className={styles.closeButton}>
               X
-            </Button>
+            </button>
           </div>
           <div className={styles.body}>{modalContent}</div>
         </div>
