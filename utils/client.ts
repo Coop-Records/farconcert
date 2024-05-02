@@ -55,5 +55,5 @@ export const baseWriteServerClient = createWalletClient({
         : serverBaseAlchemyKey
     }`
   ),
-  account: DeployerAccount,
+  account: DeployerAccount, 
 }).extend(publicActions);
