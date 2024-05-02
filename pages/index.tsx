@@ -156,7 +156,7 @@ function Profile() {
                 className={styles.ticketImage}
               />
               <div>
-                {redeemed ? "Ticket Redeemed" : "Click ticket for QR Code"}
+                {redeemed ? "Ticket Redeemed" : "Click to reveal"}
               </div>
             </div>
           ))}
